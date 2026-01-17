@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>404 | Page Not Found</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- ===== CSS ===== -->
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: Inter, system-ui, sans-serif;
+    }
+
+    body {
+      background: #000;
+      color: #000;
+      overflow: hidden;
+    }
+
+    .container {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      background: black;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    /* ===== Message ===== */
+    .message {
+      position: absolute;
+      z-index: 10;
+      text-align: center;
+      background: rgba(255,255,255,0.9);
+      backdrop-filter: blur(8px);
+      padding: 3rem;
+      border-radius: 24px;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: all 0.6s ease;
+      box-shadow: 0 0 40px rgba(255,255,255,0.35);
+    }
+
+    .message.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .message h1 {
+      font-size: 4rem;
+      font-weight: 800;
+    }
+
+    .message h2 {
+      font-size: 6rem;
+      font-weight: 900;
+      margin: 0.5rem 0;
+    }
+
+    .message p {
+      max-width: 420px;
+      margin: 1rem auto 2rem;
+      font-size: 1rem;
+      opacity: 0.85;
+    }
+
+    .buttons {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+    }
+
+    button {
+      cursor: pointer;
+      padding: 0.75rem 1.5rem;
+      border-radius: 999px;
+      font-size: 1rem;
+      font-weight: 600;
+      border: 2px solid black;
+      background: transparent;
+      transition: all 0.3s ease;
+    }
+
+    button.primary {
+      background: black;
+      color: white;
+    }
+
+    button:hover {
+      transform: scale(1.08);
+    }
+
+    button.primary:hover {
+      background: #111;
+    }
+
+    /* ===== Characters ===== */
+    .characters {
+      position: absolute;
+      width: 18%;
+      opacity: 0.9;
+      pointer-events: none;
+    }
+
+    /* ===== Canvas ===== */
+    canvas {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+    }
+
+    /* Glow pulse */
+    @keyframes glow {
+      0% { box-shadow: 0 0 20px rgba(255,255,255,0.2); }
+      100% { box-shadow: 0 0 60px rgba(255,255,255,0.5); }
+    }
+
+    .message {
+      animation: glow 3s ease-in-out infinite alternate;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <!-- Canvas -->
+  <canvas id="bgCanvas"></canvas>
+
+  <!-- Message -->
+  <div class="message" id="message">
+    <h1>Page Not Found</h1>
+    <h2>404</h2>
+    <p>
+      The page you are looking for might have been removed,
+      had its name changed, or is temporarily unavailable.
+    </p>
+    <div class="buttons">
+      <button onclick="history.back()">Go Back</button>
+      <button class="primary" onclick="location.href='/'">Go Home</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== JavaScript ===== -->
+<script>
+/* ===== Message Fade In ===== */
+setTimeout(() => {
+  document.getElementById("message").classList.add("visible");
+}, 1200);
+
+/* ===== Characters Animation ===== */
+const characters = [
+  { top: "5%", src: "https://images.unsplash.com/photo-1549921296-3c7b3f4b6b17?w=600" },
+  { top: "20%", src: "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=600" },
+  { top: "35%", src: "https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?w=600" },
+];
+
+characters.forEach((char, i) => {
+  const img = document.createElement("img");
+  img.src = char.src;
+  img.className = "characters";
+  img.style.top = char.top;
+  img.style.left = "110%";
+  document.body.appendChild(img);
+
+  const duration = 4000 + i * 1500;
+  img.animate(
+    [
+      { transform: "translateX(0) rotate(0deg)" },
+      { transform: "translateX(-140vw) rotate(-360deg)" }
+    ],
+    {
+      duration,
+      iterations: Infinity,
+      easing: "linear"
+    }
+  );
+});
+
+/* ===== Canvas Circles ===== */
+const canvas = document.getElementById("bgCanvas");
+const ctx = canvas.getContext("2d");
+let circles = [];
+let frame = 0;
+
+function resize() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  circles = Array.from({ length: 300 }).map(() => ({
+    x: Math.random() * canvas.width * 2,
+    y: Math.random() * canvas.height,
+    r: canvas.width / 1000
+  }));
+}
+resize();
+window.addEventListener("resize", resize);
+
+function animate() {
+  frame++;
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = "white";
+
+  circles.forEach(c => {
+    c.x -= canvas.width / 120;
+    c.r += 0.01;
+    ctx.beginPath();
+    ctx.arc(c.x, c.y, c.r, 0, Math.PI * 2);
+    ctx.fill();
+  });
+
+  if (frame < 500) requestAnimationFrame(animate);
+}
+animate();
+</script>
+
+</body>
+</html>
